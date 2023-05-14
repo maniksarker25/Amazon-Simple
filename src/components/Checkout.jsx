@@ -3,7 +3,7 @@ import React from 'react';
 const Checkout = () => {
     return (
         <div>
-            order chekout
+            Order CheckOut
         </div>
     );
 };
