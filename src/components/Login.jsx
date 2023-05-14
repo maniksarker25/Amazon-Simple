@@ -1,21 +1,24 @@
 import React, { useContext, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { authContext } from "../Providers/AuthProvider";
-import { FaGoogle,FaEye } from "react-icons/fa";
-import { sendPasswordResetEmail } from "firebase/auth";
+import { FaGoogle, FaEye } from "react-icons/fa";
+import { sendEmailVerification, sendPasswordResetEmail } from "firebase/auth";
 
 const Login = () => {
-  const { logIn, googleSignIn,resetPassword } = useContext(authContext);
+  const { logIn, googleSignIn, resetPassword, logOut } =
+    useContext(authContext);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const emailRef = useRef();
-  const navigate = useNavigate()
-  const location = useLocation()
-  const [showPassword,setShowPassword] = useState(false)
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [showPassword, setShowPassword] = useState(false);
+  const { user } = useContext(authContext);
+  // console.log(user);
   // console.log(showPassword)
   // console.log(location)
 
-  const from = location.state?.form?.pathname || '/';
+  const from = location.state?.form?.pathname || "/";
   // console.log(from)
 
   const handleLogin = (event) => {
@@ -23,21 +26,27 @@ const Login = () => {
     const form = event.target;
     const email = form.email.value;
     const password = form.password.value;
+    
     setError("");
     setSuccess("");
 
     // login user
+
     logIn(email, password)
       .then((result) => {
         const loggedUser = result.user;
         console.log(loggedUser);
-        // if(!loggedUser.emailVerified){
-        //   alert('Email not verified')
-        //   return
-        // }
-        setSuccess("User Login Successfully");
-        form.reset();
-        navigate(from,{replace:true})
+        if (!loggedUser.emailVerified) {
+          logOut();
+          alert("Email not verified");
+          sendEmailVerification(loggedUser)
+          return;
+        } else {
+          setSuccess("User Login Successfully");
+          form.reset();
+          navigate(from, { replace: true });
+        }
+        
       })
       .catch((error) => {
         const errorMessage = error.message;
@@ -57,18 +66,18 @@ const Login = () => {
       });
   };
   // handle reset password ----
-  const handleResetPassword = () =>{
-     const email = emailRef.current.value;
-     if(!email){
-      setError('Provide email for reset password')
-     }
-     resetPassword(email)
-     .then(()=>{})
-     .catch(error=>{
-      const errorMessage = error.message;
-      setError(errorMessage)
-     })
-  }
+  const handleResetPassword = () => {
+    const email = emailRef.current.value;
+    if (!email) {
+      setError("Provide email for reset password");
+    }
+    resetPassword(email)
+      .then(() => {})
+      .catch((error) => {
+        const errorMessage = error.message;
+        setError(errorMessage);
+      });
+  };
 
   return (
     <div>
@@ -95,17 +104,22 @@ const Login = () => {
               <div className="form-control">
                 <label className="label">
                   <span className="label-text">Password</span>
-                  <span onClick={()=>setShowPassword(!showPassword)} className="absolute right-12 top-44 cursor-pointer"><FaEye/></span>
+                  <span
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-12 top-44 cursor-pointer"
+                  >
+                    <FaEye />
+                  </span>
                 </label>
                 <input
-                  type={showPassword?'text':'password'}
+                  type={showPassword ? "text" : "password"}
                   placeholder="password"
                   className="input input-bordered"
                   name="password"
                   required
                 />
                 <label className="label">
-                  <p onClick={handleResetPassword} >
+                  <p onClick={handleResetPassword}>
                     <a href="#" className="label-text-alt link link-hover">
                       Forgot password?
                     </a>

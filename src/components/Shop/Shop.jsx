@@ -17,7 +17,7 @@ const Shop = () => {
   // useState-----
   useEffect(() => {
     fetch(
-      " https://raw.githubusercontent.com/ProgrammingHero1/ema-john-resources/main/fakeData/products.json"
+      " http://localhost:5000/products"
     )
       .then((res) => res.json())
       .then((data) => setProducts(data));
@@ -28,7 +28,7 @@ const Shop = () => {
   //     // console.log(storedCart)
   //     const savedCart = [];
   //     for( const id in storedCart){
-  //         const addedProduct = products.find(product => product.id === id);
+  //         const addedProduct = products.find(product => product._id === id);
 
   //         if(addedProduct){
   //             // console.log(addedProduct)
@@ -44,7 +44,7 @@ const Shop = () => {
     const storedCart = getShoppingCart();
     let savedCart = [];
     for (const id in storedCart) {
-      const addedCart = products.find((product) => product.id === id);
+      const addedCart = products.find((product) => product._id === id);
       if (addedCart) {
         const quantity = storedCart[id];
         addedCart.quantity = quantity;
@@ -59,17 +59,17 @@ const Shop = () => {
     // const newCart = [...cart,product];
     // if product doesn't exits in the cart, then set quantity = 1;
     // if exist update quantity by 1
-    const exists = cart.find((pd) => pd.id === product.id);
+    const exists = cart.find((pd) => pd._id === product._id);
     if (!exists) {
       product.quantity = 1;
       newCart = [...cart, product];
     } else {
       exists.quantity = exists.quantity + 1;
-      const remaining = cart.filter((pd) => pd.id !== product.id);
+      const remaining = cart.filter((pd) => pd._id !== product._id);
       newCart = [...remaining, exists];
     }
     setCart(newCart);
-    addToDb(product.id);
+    addToDb(product._id);
   };
   const handleClearCart = () => {
     setCart([]);
@@ -82,7 +82,7 @@ const Shop = () => {
           <Product
             handleAddToCart={handleAddToCart}
             product={product}
-            key={product.id}
+            key={product._id}
           ></Product>
         ))}
       </div>

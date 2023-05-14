@@ -2,11 +2,13 @@ import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { authContext } from "../../Providers/AuthProvider";
 import { sendEmailVerification } from "firebase/auth";
+import { FaEye } from "react-icons/fa";
 
 const SignUp = () => {
-  const { createUser } = useContext(authContext);
+  const { createUser, logIn } = useContext(authContext);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSignUp = (event) => {
     event.preventDefault();
@@ -15,8 +17,8 @@ const SignUp = () => {
     const email = form.email.value;
     const password = form.password.value;
     console.log(name, email, password);
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
 
     // validation
     if (password.length < 6) {
@@ -36,16 +38,16 @@ const SignUp = () => {
     createUser(email, password)
       .then((result) => {
         const loggedUser = result.user;
-        handleSendEmailVerification(result.user)
-        // console.log(loggedUser)
-        
+
+        handleSendEmailVerification(result.user);
+        console.log(loggedUser);
+
         // if(!loggedUser.emailVerified){
         //   setError('Email not verified')
         //   return
         // }
         setSuccess("User Login Successfully");
         form.reset();
-        
       })
       .catch((error) => {
         const errorMessage = error.message;
@@ -53,13 +55,12 @@ const SignUp = () => {
       });
   };
   // email verification
-  const handleSendEmailVerification = (user)=>{
-      sendEmailVerification(user)
-      .then(result=>{
-        console.log(result);
-        alert('Please verify you email')
-      })
-  }
+  const handleSendEmailVerification = (user) => {
+    sendEmailVerification(user).then((result) => {
+      console.log(result);
+      alert("Please verify you email");
+    });
+  };
 
   return (
     <div>
@@ -97,9 +98,15 @@ const SignUp = () => {
               <div className="form-control">
                 <label className="label">
                   <span className="label-text">Password</span>
+                  <span
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-12 bottom-56 cursor-pointer"
+                  >
+                    <FaEye />
+                  </span>
                 </label>
                 <input
-                  type="Password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="Password"
                   className="input input-bordered"
                   name="password"
@@ -124,7 +131,6 @@ const SignUp = () => {
                 <button className=" bg-orange-300 px-4 py-3 rounded-lg font-semibold ">
                   Sign Up
                 </button>
-                
               </div>
               <p>
                 Already have an account?Please{" "}

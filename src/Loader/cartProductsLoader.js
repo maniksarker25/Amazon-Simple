@@ -1,12 +1,12 @@
 import { getShoppingCart } from "../utilities/fakedb";
 
  const cartProductsLoader = async () =>{
-    const loadedProducts = await fetch('https://raw.githubusercontent.com/ProgrammingHero1/ema-john-resources/main/fakeData/products.json');
+    const loadedProducts = await fetch('http://localhost:5000/products');
     const products = await loadedProducts.json();
     const storedCart = getShoppingCart();
     let savedCart = [];
     for(const id in storedCart){
-        const addedCart = products.find(product => product.id === id );
+        const addedCart = products.find(product => product._id === id );
         if(addedCart){
             const quantity = storedCart[id];
             addedCart.quantity = quantity;
